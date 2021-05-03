@@ -35,6 +35,8 @@ NodeEditor.addPath = function (x1, y1, x2, y2) {
 	// path.setAttribute("stroke-dasharray", "20,5,5,5,5,5");
 	NodeEditor.setPathDAttribute(path, x1, y1, x2, y2);
 	NodeEditor.svgElement.appendChild(path);
+
+	return path;
 };
 
 NodeEditor.setPathDAttribute = function (pathElement, x1, y1, x2, y2) {
@@ -49,7 +51,11 @@ NodeEditor.completeConnection = function () {
 	const s = this.fromOutput.getPosition();
 	const e = this.toInput.getPosition();
 
-	NodeEditor.addPath(s.x, s.y, e.x, e.y);
+	return NodeEditor.addPath(s.x, s.y, e.x, e.y);
+};
+
+NodeEditor.updatePath = function (pathElement, x1, y1, x2, y2) {
+	NodeEditor.setPathDAttribute(pathElement, x1, y1, x2, y2);
 };
 
 class MyNode {
@@ -111,6 +117,12 @@ class MyNode {
 
 	onDragMove(e) {
 		this.position = this.position.add(e.movementX, e.movementY);
+		this.inputs.forEach((i) => {
+			i.updatePaths();
+		});
+		this.outputs.forEach((o) => {
+			o.updatePaths();
+		});
 	}
 
 	onDragEnd(e) {
@@ -133,6 +145,14 @@ class MyNode {
 	}
 }
 
+class Connection {
+	constructor() {
+		this.from = null;
+		this.to = null;
+		this.path = null;
+	}
+}
+
 class Connector {
 	constructor(node, parentNodeList, name) {
 		this.name = name;
@@ -149,6 +169,8 @@ class Connector {
 		this.connPoint.innerHTML = "&nbsp;";
 
 		this.connPoint.addEventListener("click", this);
+
+		this.connections = [];
 	}
 
 	handleEvent(e) {}
@@ -166,6 +188,14 @@ class Connector {
 
 		return pos;
 	}
+
+	updatePaths() {
+		this.connections.forEach((c) => {
+			const s = c.from.getPosition();
+			const e = c.to.getPosition();
+			NodeEditor.updatePath(c.path, s.x, s.y, e.x, e.y);
+		});
+	}
 }
 
 class InputConnector extends Connector {
@@ -175,26 +205,24 @@ class InputConnector extends Connector {
 	}
 
 	handleEvent(e) {
-		NodeEditor.toNode = this.node;
-		NodeEditor.toInput = this;
-		NodeEditor.completeConnection();
 		// Move an existing connection
 		// Finish creating an already started connection
+
+		NodeEditor.toNode = this.node;
+		NodeEditor.toInput = this;
+
+		const path = NodeEditor.completeConnection();
+		let connection = new Connection();
+		connection.from = NodeEditor.fromOutput;
+		connection.to = NodeEditor.toInput;
+		connection.path = path;
+
+		this.connections.push(connection);
+		NodeEditor.fromOutput.connections.push(connection);
+
+		// this.paths.push(path);
+		// NodeEditor.fromOutput.paths.push(path);
 	}
-
-	// getPosition() {
-	// 	let pos = new Position();
-	// 	pos.y += this.root.offsetHeight / 2 + this.root.offsetTop;
-
-	// 	let element = this.root.offsetParent;
-
-	// 	while (element) {
-	// 		pos.add(element.offsetLeft, element.offsetTop);
-	// 		element = element.offsetParent;
-	// 	}
-
-	// 	return pos;
-	// }
 }
 
 class OutputConnector extends Connector {
@@ -204,25 +232,11 @@ class OutputConnector extends Connector {
 	}
 
 	handleEvent(e) {
+		// Clear existing connection if any, and create new connection
+
 		NodeEditor.fromNode = this.node;
 		NodeEditor.fromOutput = this;
-		// Clear existing connection if any, and create new connection
 	}
-
-	// getPosition() {
-	// 	let pos = new Position();
-	// 	pos.x += this.root.offsetWidth + 2;
-	// 	pos.y += this.root.offsetHeight / 2 + this.root.offsetTop + 2;
-
-	// 	let element = this.root.offsetParent;
-
-	// 	while (element) {
-	// 		pos.add(element.offsetLeft, element.offsetTop);
-	// 		element = element.offsetParent;
-	// 	}
-
-	// 	return pos;
-	// }
 }
 
 window.addEventListener("load", function () {
