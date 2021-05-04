@@ -98,13 +98,13 @@ class MyNode {
 	// METHODS
 
 	addInput(name) {
-		var connector = new InputConnector(this, this.listElement, name);
+		var connector = new InputConnector(this, name);
 		this.inputs.push(connector);
 		return connector;
 	}
 
 	addOutput(name) {
-		var connector = new OutputConnector(this, this.listElement, name);
+		var connector = new OutputConnector(this, name);
 		this.outputs.push(connector);
 		return connector;
 	}
@@ -154,7 +154,7 @@ class Connection {
 }
 
 class Connector {
-	constructor(node, parentNodeList, name) {
+	constructor(node, name) {
 		this.name = name;
 		this.node = node;
 
@@ -164,7 +164,7 @@ class Connector {
 		this.root.appendChild(this.connPoint);
 		this.root.appendChild(this.label);
 
-		parentNodeList.appendChild(this.root);
+		node.listElement.appendChild(this.root);
 		this.label.innerText = name;
 		this.connPoint.innerHTML = "&nbsp;";
 
@@ -199,8 +199,8 @@ class Connector {
 }
 
 class InputConnector extends Connector {
-	constructor(node, parentNodeList, name) {
-		super(node, parentNodeList, name);
+	constructor(node, name) {
+		super(node, name);
 		this.root.className = "input";
 	}
 
@@ -226,8 +226,8 @@ class InputConnector extends Connector {
 }
 
 class OutputConnector extends Connector {
-	constructor(node, parentNodeList, name) {
-		super(node, parentNodeList, name);
+	constructor(node, name) {
+		super(node, name);
 		this.root.className = "output";
 	}
 
