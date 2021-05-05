@@ -26,7 +26,6 @@ export default class BaseNode {
 		this.rootElement.appendChild(this.listElement);
 
 		this.position = initialPosition;
-		NodeEditor.addNode(this);
 	}
 
 	get position() {

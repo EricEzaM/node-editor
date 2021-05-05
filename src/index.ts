@@ -9,17 +9,26 @@ window.addEventListener("load", function () {
 });
 
 window.addEventListener("load", function (e) {
-	var node = new BaseNode("Some Title", new Position(300, 100));
+	let node = new BaseNode("Some Title", new Position(300, 100));
 	node.addInput("Test Input");
 	node.addOutput("Output Test Long Test");
+	NodeEditor.addNode(node);
 
-	var node = new BaseNode("Some Title", new Position(600, 150));
+	node = new BaseNode("Some Title", new Position(600, 150));
 	node.addInput("Test Input");
 	node.addOutput("Output Test Long Test");
+	NodeEditor.addNode(node);
 });
 
 document.getElementById("print")?.addEventListener("click", function (e) {
 	NodeEditor.getJson();
+});
+
+document.getElementById("add-node")?.addEventListener("click", function (e) {
+	let node = new BaseNode("New Node", new Position(50, 50));
+	node.addInput("New Input");
+	node.addOutput("New Output");
+	NodeEditor.addNode(node);
 });
 
 // @ts-ignore
