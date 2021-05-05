@@ -16,3 +16,6 @@ window.addEventListener("load", function (e) {
 	node.addInput("Test Input");
 	node.addOutput("Output Test Long Test");
 });
+
+// @ts-ignore
+if (module.hot) module.hot.accept();

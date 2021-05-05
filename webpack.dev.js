@@ -5,8 +5,11 @@ var HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = merge(common, {
 	mode: "development",
+	devtool: "eval-cheap-module-source-map",
 	devServer: {
 		hot: true,
+		contentBase: ["./src", "./public"],
+		inline: true,
 	},
 	output: {
 		filename: "[name].bundle.js",
