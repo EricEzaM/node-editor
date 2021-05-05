@@ -45,7 +45,7 @@ export default class Connector {
 }
 
 export class InputConnector extends Connector {
-	constructor(node, name) {
+	constructor(node: BaseNode, name: string) {
 		super(node, name);
 		this.root.className = "input";
 	}
