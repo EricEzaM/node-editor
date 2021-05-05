@@ -4,25 +4,26 @@ import Connector from "./connector";
 import Position from "./position";
 
 export default class NodeEditor {
-	private constructor() {}
-
 	private static offset = new Position();
-	private static element: HTMLElement | null;
+	private static rootElement: HTMLElement | null;
 	private static svgElement: HTMLElement | null;
 
 	private static currentSourceConnector: Connector | null;
+
+	private static previewPathUpdateListener: (me: MouseEvent) => void;
+	private static previewPath: SVGPathElement | null;
 
 	static nodes: BaseNode[] = [];
 	static connections: Connection[] = [];
 
 	static init() {
-		this.element = document.getElementById("NodeEditor");
+		this.rootElement = document.getElementById("NodeEditor");
 		this.svgElement = document.getElementById("Connections");
 	}
 
 	static addNode(node: BaseNode) {
 		this.nodes.push(node);
-		this.element?.appendChild(node.rootElement);
+		this.rootElement?.appendChild(node.rootElement);
 	}
 
 	static addPath(startPos: Position, endPos: Position): SVGPathElement | null {
@@ -72,10 +73,27 @@ export default class NodeEditor {
 			return;
 		}
 
+		debugger;
+
 		this.currentSourceConnector = source;
+
+		this.previewPathUpdateListener = this.updatePreviewPath.bind(this);
+		this.rootElement &&
+			this.rootElement.addEventListener(
+				"mousemove",
+				this.previewPathUpdateListener
+			);
 	}
 
 	static completeConnection(destination: Connector): void {
+		this.rootElement &&
+			this.rootElement.removeEventListener(
+				"mousemove",
+				this.previewPathUpdateListener
+			);
+		this.previewPath?.remove();
+		this.previewPath = null;
+
 		if (this.currentSourceConnector && destination) {
 			if (
 				this.connections.find(
@@ -83,6 +101,7 @@ export default class NodeEditor {
 				)
 			) {
 				console.warn("This connection already exists.");
+				this.currentSourceConnector = null;
 				return;
 			}
 
@@ -130,5 +149,18 @@ export default class NodeEditor {
 		console.log(JSON.stringify(this.nodes));
 		console.log("CONNECTIONS");
 		console.log(JSON.stringify(this.connections));
+	}
+
+	static updatePreviewPath(me: MouseEvent) {
+		if (this.currentSourceConnector) {
+			const s = this.currentSourceConnector.getPosition();
+			const e = new Position(me.x, me.y);
+
+			if (this.previewPath) {
+				this.updatePath(this.previewPath, s, e);
+			} else {
+				this.previewPath = this.addPath(s, e);
+			}
+		}
 	}
 }
