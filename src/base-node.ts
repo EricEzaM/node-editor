@@ -3,8 +3,6 @@ import NodeEditor from "./node-editor";
 import Position from "./position";
 
 export default class BaseNode {
-	// CONSTRUCTOR
-
 	title: string;
 	inputs: Connector[] = [];
 	outputs: Connector[] = [];
@@ -32,8 +30,6 @@ export default class BaseNode {
 		NodeEditor.element?.appendChild(this.rootElement);
 	}
 
-	// PROPERTIES
-
 	get position() {
 		return this._position;
 	}
@@ -43,8 +39,6 @@ export default class BaseNode {
 		this.rootElement.style.left = newPosition.x + "px";
 		this.rootElement.style.top = newPosition.y + "px";
 	}
-
-	// METHODS
 
 	addInput(name: string) {
 		var connector = new InputConnector(this, name);
