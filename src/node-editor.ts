@@ -77,6 +77,15 @@ export default class NodeEditor {
 
 	static completeConnection(destination: Connector): void {
 		if (this.currentSourceConnector && destination) {
+			if (
+				this.connections.find(
+					(c) => c.from == this.currentSourceConnector && c.to == destination
+				)
+			) {
+				console.warn("This connection already exists.");
+				return;
+			}
+
 			const s = this.currentSourceConnector.getPosition();
 			const e = destination.getPosition();
 
