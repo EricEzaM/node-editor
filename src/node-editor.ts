@@ -33,7 +33,7 @@ export default class NodeEditor {
 			path.setAttribute("fill", "none");
 			path.setAttribute("stroke", "#000");
 			path.setAttribute("stroke-width", "2");
-			// path.setAttribute("stroke-dasharray", "20,5,5,5,5,5");
+			path.setAttribute("stroke-dasharray", "20,5,5,5,5,5");
 			this.setPathDAttribute(path, startPos, endPos);
 			this.svgElement.appendChild(path);
 
@@ -51,6 +51,14 @@ export default class NodeEditor {
 		let str =
 			`M${startPos.x},${startPos.y}` + // Move pen to starting position
 			` L${endPos.x},${endPos.y}`; // Draw the line to the end point
+
+		const xDiff = Math.abs(endPos.x - startPos.x) / 1.5;
+
+		str =
+			`M${startPos.x} ${startPos.y}` + // Move pen to starting position
+			` C ${startPos.x + xDiff} ${startPos.y}` + // Control Point 1
+			`, ${endPos.x - xDiff} ${endPos.y}` + // Control Point 2
+			`, ${endPos.x} ${endPos.y}`; // End point
 
 		pathElement.setAttribute("d", str);
 	}

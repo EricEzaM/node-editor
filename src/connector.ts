@@ -34,7 +34,10 @@ export default class Connector {
 
 	getPosition() {
 		let element: HTMLElement | null = this.connPoint;
-		let pos = new Position(element.offsetWidth / 2, element.offsetHeight / 2);
+		let pos = new Position(
+			element.offsetWidth / 2 + 2,
+			element.offsetHeight / 2 + 2
+		);
 
 		while (element) {
 			pos.add(element.offsetLeft, element.offsetTop);

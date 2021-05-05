@@ -1,3 +1,18 @@
+$node-border: #2e2e2e;
+
+$connector-border: $node-border;
+$connector-fill: #dddddd;
+
+$header-fill: #eeeeee;
+$header-border: $node-border;
+
+$connector-x-offset: -0.5em;
+$connector-y-offset: 0.2em;
+
+body {
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
 svg {
 	position: absolute;
 	z-index: -100;
@@ -9,12 +24,15 @@ svg {
 
 .Node {
 	position: absolute;
-	border: solid 1px #7e7e7e;
+	border: solid 2px $node-border;
+	border-radius: 1em;
 	text-align: center;
 	background-color: white;
 
 	> header {
-		background-color: #dddddd;
+		border-radius: 1em 1em 0 0;
+		border-bottom: 2px solid $header-border;
+		background-color: $header-fill;
 		user-select: none;
 		cursor: pointer;
 		padding: 0.1em 1em;
@@ -24,7 +42,6 @@ svg {
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		border: solid 1px rgb(204, 45, 59);
 
 		> li {
 			position: relative;
@@ -36,21 +53,31 @@ svg {
 
 			> i {
 				position: absolute;
-				width: 0.6em;
-				height: 0.6em;
-				background-color: red;
+				width: 0.7em;
+				height: 0.7em;
+				border-radius: 999px;
+				background-color: $connector-fill;
+				border: 2px solid $connector-border;
 				cursor: pointer;
 			}
 		}
 
-		> li.input > i {
-			left: -0.35em;
-			top: 0.35em;
+		> li.input {
+			text-align: left;
+
+			> i {
+				left: $connector-x-offset;
+				top: $connector-y-offset;
+			}
 		}
 
-		> li.output > i {
-			right: -0.35em;
-			top: 0.35em;
+		> li.output {
+			text-align: right;
+
+			> i {
+				right: $connector-x-offset;
+				top: $connector-y-offset;
+			}
 		}
 	}
 }
