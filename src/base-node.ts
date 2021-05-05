@@ -59,12 +59,7 @@ export default class BaseNode {
 
 	onDragMove(e: MouseEvent) {
 		this.position = this.position.add(e.movementX, e.movementY);
-		this.inputs.forEach((i) => {
-			i.updatePaths();
-		});
-		this.outputs.forEach((o) => {
-			o.updatePaths();
-		});
+		NodeEditor.updatePathsForNode(this);
 	}
 
 	onDragEnd(e: MouseEvent) {

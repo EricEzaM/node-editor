@@ -1,3 +1,4 @@
+import { node } from "webpack";
 import BaseNode from "./base-node";
 import NodeEditor from "./node-editor";
 import Position from "./position";
@@ -15,6 +16,10 @@ window.addEventListener("load", function (e) {
 	var node = new BaseNode("Some Title", new Position(600, 150));
 	node.addInput("Test Input");
 	node.addOutput("Output Test Long Test");
+});
+
+document.getElementById("print")?.addEventListener("click", function (e) {
+	NodeEditor.getJson();
 });
 
 // @ts-ignore

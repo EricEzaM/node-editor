@@ -5,9 +5,6 @@ import Position from "./position";
 
 export default class Connector {
 	name: string;
-	node: BaseNode;
-
-	connections: Connection[] = [];
 
 	protected root: HTMLElement;
 	protected connPoint: HTMLElement;
@@ -15,7 +12,6 @@ export default class Connector {
 
 	constructor(node: BaseNode, name: string) {
 		this.name = name;
-		this.node = node;
 
 		this.root = document.createElement("li");
 		this.connPoint = document.createElement("i");
@@ -46,14 +42,6 @@ export default class Connector {
 
 		return pos;
 	}
-
-	updatePaths() {
-		this.connections.forEach((c) => {
-			const s = c.from.getPosition();
-			const e = c.to.getPosition();
-			NodeEditor.updatePath(c.path, s, e);
-		});
-	}
 }
 
 export class InputConnector extends Connector {
@@ -65,20 +53,7 @@ export class InputConnector extends Connector {
 	handleEvent(e: MouseEvent) {
 		// Move an existing connection
 		// Finish creating an already started connection
-
-		NodeEditor.currentToInput = this;
-
-		const path = NodeEditor.completeConnection();
-		if (path) {
-			let connection = new Connection(
-				NodeEditor.currentFromOutput,
-				NodeEditor.currentToInput,
-				path
-			);
-
-			this.connections.push(connection);
-			NodeEditor.currentFromOutput.connections.push(connection);
-		}
+		NodeEditor.completeConnection(this);
 	}
 }
 
@@ -90,6 +65,6 @@ export class OutputConnector extends Connector {
 
 	handleEvent(e: MouseEvent) {
 		// Clear existing connection if any, and create new connection
-		NodeEditor.currentFromOutput = this;
+		NodeEditor.startConnection(this);
 	}
 }

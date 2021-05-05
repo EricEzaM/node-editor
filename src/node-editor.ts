@@ -1,4 +1,5 @@
 import BaseNode from "./base-node";
+import Connection from "./connection";
 import Connector from "./connector";
 import Position from "./position";
 
@@ -9,10 +10,10 @@ export default class NodeEditor {
 	private static element: HTMLElement | null;
 	private static svgElement: HTMLElement | null;
 
-	static currentFromOutput: Connector;
-	static currentToInput: Connector;
+	private static currentSourceConnector: Connector | null;
 
 	static nodes: BaseNode[] = [];
+	static connections: Connection[] = [];
 
 	static init() {
 		this.element = document.getElementById("NodeEditor");
@@ -63,11 +64,48 @@ export default class NodeEditor {
 		pathElement.setAttribute("d", str);
 	}
 
-	static completeConnection(): SVGPathElement | null {
-		const s = this.currentFromOutput?.getPosition();
-		const e = this.currentToInput?.getPosition();
+	static startConnection(source: Connector): void {
+		if (this.currentSourceConnector != null) {
+			console.warn(
+				"Connection creation already in progress - cannot start another."
+			);
+			return;
+		}
 
-		return s && e ? this.addPath(s, e) : null;
+		this.currentSourceConnector = source;
+	}
+
+	static completeConnection(destination: Connector): void {
+		if (this.currentSourceConnector && destination) {
+			const s = this.currentSourceConnector.getPosition();
+			const e = destination.getPosition();
+
+			let path = this.addPath(s, e);
+
+			if (path) {
+				let c = new Connection(this.currentSourceConnector, destination, path);
+
+				this.connections.push(c);
+			}
+
+			this.currentSourceConnector = null;
+		} else {
+			console.warn(
+				"Connection could not be completed - source or desitnation is null."
+			);
+		}
+	}
+
+	static updatePathsForNode(node: BaseNode) {
+		this.connections
+			// Filter for only connections which are attached to the provided node
+			.filter(
+				(c) => node.outputs.includes(c.from) || node.inputs.includes(c.to)
+			)
+			// Update each path
+			.forEach((c) => {
+				this.updatePath(c.path, c.from.getPosition(), c.to.getPosition());
+			});
 	}
 
 	static updatePath(
@@ -76,5 +114,12 @@ export default class NodeEditor {
 		endPos: Position
 	) {
 		this.setPathDAttribute(pathElement, startPos, endPos);
+	}
+
+	static getJson() {
+		console.log("NODES");
+		console.log(JSON.stringify(this.nodes));
+		console.log("CONNECTIONS");
+		console.log(JSON.stringify(this.connections));
 	}
 }
