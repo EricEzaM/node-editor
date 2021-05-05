@@ -1,19 +1,27 @@
+import BaseNode from "./base-node";
 import Connector from "./connector";
 import Position from "./position";
 
 export default class NodeEditor {
 	private constructor() {}
 
-	static offset = new Position();
-	static element: HTMLElement | null;
-	static svgElement: HTMLElement | null;
+	private static offset = new Position();
+	private static element: HTMLElement | null;
+	private static svgElement: HTMLElement | null;
 
 	static currentFromOutput: Connector;
 	static currentToInput: Connector;
 
+	static nodes: BaseNode[] = [];
+
 	static init() {
 		this.element = document.getElementById("NodeEditor");
 		this.svgElement = document.getElementById("Connections");
+	}
+
+	static addNode(node: BaseNode) {
+		this.nodes.push(node);
+		this.element?.appendChild(node.rootElement);
 	}
 
 	static addPath(startPos: Position, endPos: Position): SVGPathElement | null {
