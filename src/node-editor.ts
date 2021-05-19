@@ -26,14 +26,18 @@ export default class NodeEditor {
 		this.rootElement?.appendChild(node.rootElement);
 	}
 
-	static addPath(startPos: Position, endPos: Position): SVGPathElement | null {
+	static addPath(
+		startPos: Position,
+		endPos: Position,
+		color: string = "#000000"
+	): SVGPathElement | null {
 		if (this.svgElement) {
 			let path = document.createElementNS(
 				this.svgElement.namespaceURI,
 				"path"
 			) as SVGPathElement;
 			path.setAttribute("fill", "none");
-			path.setAttribute("stroke", "#000");
+			path.setAttribute("stroke", color);
 			path.setAttribute("stroke-width", "2");
 			path.setAttribute("stroke-dasharray", "20,5,5,5,5,5");
 			this.setPathDAttribute(path, startPos, endPos);
@@ -159,7 +163,7 @@ export default class NodeEditor {
 			if (this.previewPath) {
 				this.updatePath(this.previewPath, s, e);
 			} else {
-				this.previewPath = this.addPath(s, e);
+				this.previewPath = this.addPath(s, e, "#c2c2c2");
 			}
 		}
 	}
