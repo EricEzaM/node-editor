@@ -138,19 +138,30 @@ export default class NodeEditor {
 		this.currentSourceConnector = source;
 
 		this.previewPathUpdateListener = this.updatePreviewPath.bind(this);
-		this.rootElement &&
+
+		if (this.rootElement) {
 			this.rootElement.addEventListener(
 				"mousemove",
 				this.previewPathUpdateListener
 			);
+			this.rootElement.addEventListener(
+				"mouseup",
+				this.previewPathUpdateListener
+			);
+		}
 	}
 
 	static completeConnection(destination: Connector): void {
-		this.rootElement &&
+		if (this.rootElement) {
 			this.rootElement.removeEventListener(
 				"mousemove",
 				this.previewPathUpdateListener
 			);
+			this.rootElement.removeEventListener(
+				"mouseup",
+				this.previewPathUpdateListener
+			);
+		}
 
 		this.removePreviewPath();
 
@@ -187,6 +198,14 @@ export default class NodeEditor {
 	static cancelConnection() {
 		this.removePreviewPath();
 		this.currentSourceConnector = undefined;
+	}
+
+	static deleteConnection(conn: Connection) {
+		const idx = this.connections.findIndex((c) => c === conn);
+		if (idx > -1) {
+			conn.path.remove();
+			this.connections.splice(idx, 1);
+		}
 	}
 
 	static updatePathsForNode(node: BaseNode) {

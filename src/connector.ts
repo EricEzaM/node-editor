@@ -52,9 +52,19 @@ export class InputConnector extends Connector {
 
 	handleEvent(e: MouseEvent) {
 		e.stopPropagation();
-		// Move an existing connection
+
 		// Finish creating an already started connection
-		NodeEditor.completeConnection(this);
+		if (NodeEditor.isConnectionInProgress()) {
+			NodeEditor.completeConnection(this);
+			return;
+		}
+
+		// Has an active connection terminating at this connector, so delete the connection but make re-start the connection so the user can move it.
+		const activeConnection = NodeEditor.connections.find((c) => c.to === this);
+		if (activeConnection) {
+			NodeEditor.startConnection(activeConnection.from);
+			NodeEditor.deleteConnection(activeConnection);
+		}
 	}
 }
 
