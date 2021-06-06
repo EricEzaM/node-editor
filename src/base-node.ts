@@ -66,7 +66,8 @@ export default class BaseNode {
 		window.removeEventListener("mouseup", this);
 	}
 
-	handleEvent(e) {
+	handleEvent(e: MouseEvent) {
+		e.stopPropagation();
 		switch (e.type) {
 			case "mousedown":
 				this.onDragBegin(e);

@@ -23,7 +23,7 @@ export default class Connector {
 		this.label.innerText = this.name;
 		this.connPoint.innerHTML = "&nbsp;";
 
-		this.connPoint.addEventListener("click", this);
+		this.connPoint.addEventListener("mousedown", this);
 	}
 
 	handleEvent(e: MouseEvent) {}
@@ -35,7 +35,7 @@ export default class Connector {
 			element.offsetHeight / 2 + 2
 		);
 
-		while (element) {
+		while (element && element != NodeEditor.viewportElement) {
 			pos.add(element.offsetLeft, element.offsetTop);
 			element = element.offsetParent as HTMLElement;
 		}
@@ -51,6 +51,7 @@ export class InputConnector extends Connector {
 	}
 
 	handleEvent(e: MouseEvent) {
+		e.stopPropagation();
 		// Move an existing connection
 		// Finish creating an already started connection
 		NodeEditor.completeConnection(this);
@@ -64,7 +65,15 @@ export class OutputConnector extends Connector {
 	}
 
 	handleEvent(e: MouseEvent) {
+		e.stopPropagation();
 		// Clear existing connection if any, and create new connection
-		NodeEditor.startConnection(this);
+		if (
+			NodeEditor.isConnectionInProgress() &&
+			NodeEditor.getConnectionStartConnector() == this
+		) {
+			NodeEditor.cancelConnection();
+		} else {
+			NodeEditor.startConnection(this);
+		}
 	}
 }

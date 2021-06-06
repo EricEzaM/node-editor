@@ -5,25 +5,75 @@ import Position from "./position";
 
 export default class NodeEditor {
 	private static offset = new Position();
-	private static rootElement: HTMLElement | null;
+
+	// Element references
+	public static rootElement: HTMLElement | null;
+	public static viewportElement: HTMLElement | null;
 	private static svgElement: HTMLElement | null;
 
-	private static currentSourceConnector: Connector | null;
-
-	private static previewPathUpdateListener: (me: MouseEvent) => void;
-	private static previewPath: SVGPathElement | null;
-
+	// Nodes and connections
 	static nodes: BaseNode[] = [];
 	static connections: Connection[] = [];
 
+	private static currentSourceConnector?: Connector;
+
+	// Connection Preview Path
+
+	private static previewPath: SVGPathElement | null;
+	private static previewPathUpdateListener: (me: MouseEvent) => void;
+
+	// Panning
+
+	static panning = false;
+	private static panListerener: (me: MouseEvent) => void;
+	private static startPanListerener: (me: MouseEvent) => void;
+	private static endPanListerener: (me: MouseEvent) => void;
+
+	// Methods
+
 	static init() {
 		this.rootElement = document.getElementById("NodeEditor");
+		this.viewportElement = document.getElementById("EditorViewport");
 		this.svgElement = document.getElementById("Connections");
+
+		this.startPanListerener = this.onStartPan.bind(this);
+		this.panListerener = this.onPan.bind(this);
+		this.endPanListerener = this.onEndPan.bind(this);
+
+		this.rootElement?.addEventListener("mousedown", this.startPanListerener);
+	}
+
+	static onStartPan(me: MouseEvent) {
+		me.preventDefault(); // Prevents selection of elements when dragging outside the bounds of the root element.
+
+		this.panning = true;
+		window.addEventListener("mousemove", this.panListerener);
+		window.addEventListener("mouseup", this.endPanListerener);
+	}
+
+	static onPan(me: MouseEvent) {
+		if (this.viewportElement) {
+			if (this.offset.x - me.movementX >= 0) {
+				this.offset.add(-me.movementX, 0);
+				this.viewportElement.style.left = -this.offset.x + "px";
+			}
+
+			if (this.offset.y - me.movementY >= 0) {
+				this.offset.add(0, -me.movementY);
+				this.viewportElement.style.top = -this.offset.y + "px";
+			}
+		}
+	}
+
+	static onEndPan(me: MouseEvent) {
+		this.panning = false;
+		window.removeEventListener("mousemove", this.panListerener);
+		window.removeEventListener("mouseup", this.endPanListerener);
 	}
 
 	static addNode(node: BaseNode) {
 		this.nodes.push(node);
-		this.rootElement?.appendChild(node.rootElement);
+		this.viewportElement?.appendChild(node.rootElement);
 	}
 
 	static addPath(
@@ -69,6 +119,14 @@ export default class NodeEditor {
 		pathElement.setAttribute("d", str);
 	}
 
+	static getConnectionStartConnector() {
+		return this.currentSourceConnector;
+	}
+
+	static isConnectionInProgress() {
+		return this.currentSourceConnector != null;
+	}
+
 	static startConnection(source: Connector): void {
 		if (this.currentSourceConnector != null) {
 			console.warn(
@@ -76,8 +134,6 @@ export default class NodeEditor {
 			);
 			return;
 		}
-
-		debugger;
 
 		this.currentSourceConnector = source;
 
@@ -95,8 +151,8 @@ export default class NodeEditor {
 				"mousemove",
 				this.previewPathUpdateListener
 			);
-		this.previewPath?.remove();
-		this.previewPath = null;
+
+		this.removePreviewPath();
 
 		if (this.currentSourceConnector && destination) {
 			if (
@@ -105,7 +161,7 @@ export default class NodeEditor {
 				)
 			) {
 				console.warn("This connection already exists.");
-				this.currentSourceConnector = null;
+				this.currentSourceConnector = undefined;
 				return;
 			}
 
@@ -120,12 +176,17 @@ export default class NodeEditor {
 				this.connections.push(c);
 			}
 
-			this.currentSourceConnector = null;
+			this.currentSourceConnector = undefined;
 		} else {
 			console.warn(
 				"Connection could not be completed - source or desitnation is null."
 			);
 		}
+	}
+
+	static cancelConnection() {
+		this.removePreviewPath();
+		this.currentSourceConnector = undefined;
 	}
 
 	static updatePathsForNode(node: BaseNode) {
@@ -158,13 +219,24 @@ export default class NodeEditor {
 	static updatePreviewPath(me: MouseEvent) {
 		if (this.currentSourceConnector) {
 			const s = this.currentSourceConnector.getPosition();
-			const e = new Position(me.x, me.y);
+
+			const rect = (me.currentTarget as HTMLElement).getBoundingClientRect();
+			const e = new Position(me.x, me.y)
+				.add(-rect.left, -rect.top) // adjust for position of the node editor itself
+				.add(this.offset.x, this.offset.y); // adjust for any panning done
 
 			if (this.previewPath) {
 				this.updatePath(this.previewPath, s, e);
 			} else {
 				this.previewPath = this.addPath(s, e, "#c2c2c2");
 			}
+		}
+	}
+
+	static removePreviewPath() {
+		if (this.previewPath) {
+			this.previewPath.remove();
+			this.previewPath = null;
 		}
 	}
 }
