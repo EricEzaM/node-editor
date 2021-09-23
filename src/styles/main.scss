@@ -13,8 +13,8 @@ $connector-y-offset: 0.2em;
 	border: 5px solid red;
 	position: relative;
 	overflow: hidden;
-	width: 1000px;
-	height: 500px;
+	width: 1500px;
+	height: 800px;
 	margin: 20px;
 }
 
@@ -25,6 +25,8 @@ $connector-y-offset: 0.2em;
 	left: 0;
 	right: 0;
 	border: 1px solid green;
+	background-color: rgb(223, 246, 250);
+	z-index: 0;
 }
 
 body {
